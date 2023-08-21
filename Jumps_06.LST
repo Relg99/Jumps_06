@@ -1,4 +1,4 @@
-MPASM 5.86  /HOME/RICHO/DOCUMENTS/PIC_ASSEMB   8-21-2023  14:31:14         PAGE  1
+MPASM 5.86  /HOME/RICHO/DOCUMENTS/PIC_ASSEMB   8-21-2023  17:27:01         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -14,7 +14,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00008 ;Description:                                             ;
                       00009 ;                                                         ;
                       00010 ;Take an input number form PORTA (A0, A1, A2) and light   ;
-                      00011 ;up the same number op leds at PORTB.                     ;
+                      00011 ;up the same number of leds at PORTB.                     ;
                       00012 ;EXAMPLE:                                                 ;
                       00013 ;Input at PORTA:        A0(1), A1(0), A2(1)               ;
                       00014 ;Output at PORTB:       B0(1), B1(1), B2(1), B3(1),       ;
@@ -38,10 +38,79 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                             & _FOSC_INTOSCIO
                       00022 
                       00023         LIST P=16F628A
-                      00024         
-                      00025 
-                      00026         END
-MPASM 5.86  /HOME/RICHO/DOCUMENTS/PIC_ASSEMB   8-21-2023  14:31:14         PAGE  2
+                      00024 
+  00000020            00025 count   EQU     0x20                    ; Create memory for variables.
+  00000021            00026 input   EQU     0x21
+  00000022            00027 leds    EQU     0x22
+                      00028 
+0000                  00029         ORG     0x00
+                      00030 
+0000   0185           00031         CLRF    PORTA                   ; Initialize ports.
+0001   0186           00032         CLRF    PORTB
+                      00033 
+0002   3007           00034         MOVLW   0x07
+0003   009F           00035         MOVWF   CMCON
+                      00036 
+0004   1683           00037         BSF     STATUS,RP0              ; Change to bank 1.
+0005   1303           00038         BCF     STATUS,RP1
+                      00039 
+0006   301F           00040         MOVLW   0x1F
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0007   0085           00041         MOVWF   TRISA                   ; PORTA as input.
+MPASM 5.86  /HOME/RICHO/DOCUMENTS/PIC_ASSEMB   8-21-2023  17:27:01         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00042 
+0008   3000           00043         MOVLW   0x00
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0009   0086           00044         MOVWF   TRISB                   ; PORTB as output.
+                      00045 
+000A   1283           00046         BCF     STATUS,RP0              ; Change to bank 0.
+000B   1303           00047         BCF     STATUS,RP1
+                      00048 
+000C                  00049 main:
+                      00050 
+000C   01A1           00051         CLRF    input
+                      00052         
+000D   0805           00053         MOVF    PORTA,W                 ; Get user input.
+000E   00A1           00054         MOVWF   input
+                      00055 
+000F   3007           00056         MOVLW   0x07                    ; Discard unused data.
+0010   05A1           00057         ANDWF   input,F
+                      00058 
+0011   3007           00059         MOVLW   0x07                    ; Reset counter.
+0012   00A0           00060         MOVWF   count
+                      00061 
+0013   307F           00062         MOVLW   0x7F                    ; Reset output.
+0014   00A2           00063         MOVWF   leds
+                      00064 
+0015                  00065 cicle:          
+                      00066 
+0015   0820           00067         MOVF    count,W
+0016   0221           00068         SUBWF   input,W
+                      00069 
+0017   1D03           00070         BTFSS   STATUS,Z        
+                      00071 
+0018   281A           00072         GOTO    rotate
+0019   281D           00073         GOTO    finish
+                      00074 
+001A                  00075 rotate:
+                      00076 
+001A   03A0           00077         DECF    count,F
+001B   0CA2           00078         RRF     leds,F                  ; Rotate to decrease used leds.
+001C   2815           00079         GOTO    cicle   
+                      00080 
+001D                  00081 finish:
+                      00082         
+001D   0822           00083         MOVF    leds,W                  ; Show results.
+001E   0086           00084         MOVWF   PORTB
+001F   280C           00085         GOTO    main
+                      00086 
+                      00087         END
+MPASM 5.86  /HOME/RICHO/DOCUMENTS/PIC_ASSEMB   8-21-2023  17:27:01         PAGE  3
 
 
 SYMBOL TABLE
@@ -100,7 +169,7 @@ NOT_BOD                           00000000
 NOT_BOR                           00000000
 NOT_PD                            00000003
 NOT_POR                           00000001
-MPASM 5.86  /HOME/RICHO/DOCUMENTS/PIC_ASSEMB   8-21-2023  14:31:14         PAGE  3
+MPASM 5.86  /HOME/RICHO/DOCUMENTS/PIC_ASSEMB   8-21-2023  17:27:01         PAGE  4
 
 
 SYMBOL TABLE
@@ -159,7 +228,7 @@ STATUS                            00000003
 SYNC                              00000004
 T0CS                              00000005
 T0IE                              00000005
-MPASM 5.86  /HOME/RICHO/DOCUMENTS/PIC_ASSEMB   8-21-2023  14:31:14         PAGE  4
+MPASM 5.86  /HOME/RICHO/DOCUMENTS/PIC_ASSEMB   8-21-2023  17:27:01         PAGE  5
 
 
 SYMBOL TABLE
@@ -218,7 +287,7 @@ TXIE                              00000004
 TXIF                              00000004
 TXREG                             00000019
 TXSTA                             00000098
-MPASM 5.86  /HOME/RICHO/DOCUMENTS/PIC_ASSEMB   8-21-2023  14:31:14         PAGE  5
+MPASM 5.86  /HOME/RICHO/DOCUMENTS/PIC_ASSEMB   8-21-2023  17:27:01         PAGE  6
 
 
 SYMBOL TABLE
@@ -277,7 +346,7 @@ _PWRTE_ON                         00003FF7
 _RC_OSC_CLKOUT                    00003FFF
 _RC_OSC_NOCLKOUT                  00003FFE
 _WDTE_OFF                         00003FFB
-MPASM 5.86  /HOME/RICHO/DOCUMENTS/PIC_ASSEMB   8-21-2023  14:31:14         PAGE  6
+MPASM 5.86  /HOME/RICHO/DOCUMENTS/PIC_ASSEMB   8-21-2023  17:27:01         PAGE  7
 
 
 SYMBOL TABLE
@@ -288,20 +357,28 @@ _WDT_OFF                          00003FFB
 _WDT_ON                           00003FFF
 _XT_OSC                           00003FED
 __16F628A                         00000001
+cicle                             00000015
+count                             00000020
+finish                            0000001D
+input                             00000021
+leds                              00000022
+main                              0000000C
+rotate                            0000001A
 
 
 MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
 
+0000 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX ---------------- ----------------
 2000 : -------X-------- ---------------- ---------------- ----------------
 
 All other memory blocks unused.
 
-Program Memory Words Used:     0
-Program Memory Words Free:  2048
+Program Memory Words Used:    32
+Program Memory Words Free:  2016
 
 
 Errors   :     0
 Warnings :     0 reported,     0 suppressed
-Messages :     0 reported,     0 suppressed
+Messages :     2 reported,     0 suppressed
 
 
